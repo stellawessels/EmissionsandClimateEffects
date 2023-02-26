@@ -12,7 +12,6 @@ P_ocean = 0.0 # kgN/day
 P_land = 0.1 # kgN/day
 VMR = 10/1e12 # pptv
 timestep = 3600 # seconds so one hour
-L = 1/216000 # 1/s
 T = 293 # K
 M_N = 14.0 # kg/kmol
 M_H = 1 # kg/kmol
@@ -26,14 +25,14 @@ L = 1/216000 # 1/s
 # Timestep
 time = np.arange(0, 30*24*3600, timestep) # 30 days
 
-cair = rho / Mair * Navo * (1/1e6) # molec/m^3
+cair = rho / Mair * Navo * (1/1e6) # molec/cm^3
 
-k1 = 3.e-12 * np.exp(-1500/T)
+k1 = 3e-12 * np.exp(-1500/T)
 k2 = 5e-3
 k3 = 5.1e-12 * np.exp(210/T)
 k4 = 1.57e-13 + cair * 3.54e-33
 k5 = 1.85e-20 * np.exp(2.82*np.log(T)-987/T)
-k6 = 3.3e-12 * np.exp(-270/T)
+k6 = 3.3e-12 * np.exp(270/T)
 k7 = 1e-14 * np.exp(-490/T)
 k8 = 1.7e-12 * np.exp(-940/T)
 
@@ -90,10 +89,10 @@ P5 = P_CH4_land * Navo / ((M_C+(M_H*4)) * 24 * timestep * box_to_cm)
 for i in range(len(time)-1):
     L5 = k5 * OH_concentration_constant
     if i*timestep <= 10*24*3600:
-        P_CO = 0
+        P_CH4 = 0
     else:
-        P_CO = P5
-    CH4_concentration[i+1] = (CH4_concentration[i] + P_CO * timestep) / (1 + L5 *timestep)
+        P_CH4 = P5
+    CH4_concentration[i+1] = (CH4_concentration[i] + P_CH4 * timestep) / (1 + L5 *timestep)
 
 # Hier begint de herres: NOx and O3 production and loss
 
@@ -105,14 +104,6 @@ NOx_concentration_0 = VMR * Navo * rho / (Mair * 1e6) # molec/cm^3
 NOx_concentration = np.zeros(len(time))
 NOx_concentration[0] = NOx_concentration_0
 
-# Numerical solution using semi-implicit Euler scheme
-for i in range(len(time)-1):
-    if i*timestep <= 10*24*3600:
-        P = P_ocean
-    else:
-        P = P_land_new
-    NOx_concentration[i+1] = (NOx_concentration[i] + P*timestep) / (1 + L*timestep)
-
 # Initialize O3, O and NO array with zeros
 O3_concentration = np.zeros(len(time))
 O3_concentration[0] = O3_concentration_0
@@ -120,9 +111,13 @@ O3_concentration[0] = O3_concentration_0
 O_concentration = np.zeros(len(time))
 O_concentration[0] = O_concentration_0
 
-NO_concentration_0 = NOx_concentration_0 /((k2 + k3 * O_concentration_0)/(k2 + k3*O_concentration_0 + k1 * O3_concentration_0))
+NO_concentration_0 = NOx_concentration_0 * ((k2 + k3 * O_concentration_0)/(k2 + k3 * O_concentration_0 + k1 * O3_concentration_0))
 NO_concentration = np.zeros(len(time))
 NO_concentration[0] = NO_concentration_0
+
+NO2_concentration_0 = NO_concentration_0 * O3_concentration_0 * k1 / (k2+k3 * O_concentration_0)
+NO2_concentration = np.zeros(len(time))
+NO2_concentration[0] = NO2_concentration_0
 
 P_O3 = np.zeros(len(time))
 P_O3[0] = k6 * HO2_concentration_constant * NO_concentration[0]
@@ -133,17 +128,16 @@ LO3 = L7+L8
 
 # Numerical solution using semi-implicit Euler scheme
 for i in range(len(time)-1):
-    O_concentration[i] = O3_concentration[i] * 5e-6
-    NO_concentration[i] = NOx_concentration[i] /((k2 + k3 * O_concentration[i])/(k2 + k3*O_concentration[i] + k1 * O3_concentration[i]))
-    P_O3[i] = k6 * HO2_concentration_constant * NO_concentration[i]
+    if i*timestep <= 10*24*3600:
+        P = P_ocean
+    else:
+        P = P_land_new
+    NOx_concentration[i+1] = (NOx_concentration[i] + P*timestep) / (1 + L*timestep)
+    O_concentration[i+1] = O3_concentration[i] * 5e-6
+    NO_concentration[i+1] = NOx_concentration[i] *(k2 + k3 * O_concentration[i])/(k2 + k3*O_concentration[i] + k1 * O3_concentration[i])
+    P_O3[i+1] = k6 * HO2_concentration_constant * NO_concentration[i]
     O3_concentration[i+1] = (O3_concentration[i] + P_O3[i] * timestep) / (1 + LO3*timestep)
-
-NO2_concentration_0 = NO_concentration_0 * O3_concentration_0 * k1 / ((k2+k3)*O_concentration_0)
-NO2_concentration = np.zeros(len(time))
-NO2_concentration[0] = NO2_concentration_0
-for i in range(len(time)-1):
-    NO2_concentration[i] = NO_concentration[i] * O3_concentration[i] * k1 / ((k2+k3)*O_concentration[i])
-    NOx_concentration[i] = NO_concentration[i] + NO2_concentration[i]
+    NO2_concentration[i+1] = NO_concentration[i] * O3_concentration[i] * k1 / (k2+k3 *O_concentration[i])
 
 plt.plot(time/(24*3600), np.array(O3_concentration * 1e10 * rho / (1/Mair *1/1e6 *Navo)), label='O3 (0.1 ppbv)')
 plt.plot(time/(24*3600), np.array(CH4_concentration* 1e8 * rho / (1/Mair *1/1e6 *Navo)), label='CH4 (10 ppbv)')
