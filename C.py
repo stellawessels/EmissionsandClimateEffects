@@ -118,7 +118,6 @@ for i in range(len(time)-1):
         P = P_land_new
     NOx_concentration[i+1] = (NOx_concentration[i] + P*timestep) / (1 + L*timestep)
 
-
 # Initialize O3, O and NO array with zeros
 O3_concentration = np.zeros(len(time))
 O3_concentration[0] = O3_concentration_0
@@ -129,7 +128,6 @@ O_concentration[0] = O_concentration_0
 NO_concentration_0 = NOx_concentration_0 /((k2 + k3 * O_concentration_0)/(k2 + k3*O_concentration_0 + k1 * O3_concentration_0))
 NO_concentration = np.zeros(len(time))
 NO_concentration[0] = NO_concentration_0
-
 
 P_O3 = np.zeros(len(time))
 P_O3[0] = k6 * HO2_concentration_constant * NO_concentration[0]
