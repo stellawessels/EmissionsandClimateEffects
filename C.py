@@ -64,8 +64,6 @@ O_concentration_0 = O3_concentration_0 * 5e-6
 CO_concentration = np.zeros(len(time))
 CO_concentration[0] = CO_concentration_0
 # Initialize CO array with zeros ppbv
-#CO_concentration_ppbv = np.zeros(len(time))
-#CO_concentration_ppbv[0] = CO_concentration[0] * (Navo * rho / (Mair * 1e6)) * 1e9 # molec/cm^3
 
 #Production term
 P4 = P_CO_land * Navo / ((M_C+M_O) * 24 * timestep * box_to_cm)
@@ -79,7 +77,6 @@ for i in range(len(time)-1):
     else:
         P_CO = P4
     CO_concentration[i+1] = (CO_concentration[i] + P_CO * timestep) / (1 + L4*timestep)
-    #CO_concentration_ppbv[i+1] =  CO_concentration[i+1] * (Navo * rho / (Mair * 1e6)) * 1e9 # molec/cm^3
 
 # CH4 loss
 # Initialize CH4 array with zeros
@@ -99,8 +96,6 @@ for i in range(len(time)-1):
     CH4_concentration[i+1] = (CH4_concentration[i] + P_CO * timestep) / (1 + L5 *timestep)
 
 # Hier begint de herres: NOx and O3 production and loss
-#L = k6 * NO_concentration * HO2_concentration_constant
-#P = NO_concentration * OH_concentration_constant * O3_concentration
 
 P_land_new = P_land * Navo / (M_N * 24 * timestep * box_to_cm)
 
@@ -153,7 +148,7 @@ for i in range(len(time)-1):
 plt.plot(time/(24*3600), np.array(O3_concentration * 1e10 * rho / (1/Mair *1/1e6 *Navo)), label='O3 (0.1 ppbv)')
 plt.plot(time/(24*3600), np.array(CH4_concentration* 1e8 * rho / (1/Mair *1/1e6 *Navo)), label='CH4 (10 ppbv)')
 plt.plot(time/(24*3600), np.array(CO_concentration* 1e9 * rho / (1/Mair *1/1e6 *Navo)), label='CO (ppbv)')
-plt.plot(time/(24*3600), np.array(CO_concentration* 1e12 * rho / (1/Mair *1/1e6 *Navo)), label='NOx (pptv)')
+plt.plot(time/(24*3600), np.array(NOx_concentration* 1e12 * rho / (1/Mair *1/1e6 *Navo)), label='NOx (pptv)')
 plt.xlabel('Time (days)')
 plt.ylabel('Concentration')
 plt.title('Temporal Evolution over 30 days')
