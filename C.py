@@ -132,22 +132,30 @@ NO_concentration[0] = NO_concentration_0
 
 
 P_O3 = np.zeros(len(time))
-P_O3[0] = k6* O3_concentration[0] * OH_concentration_constant * NO_concentration[0]
+P_O3[0] = k6 * HO2_concentration_constant * NO_concentration[0]
 
 L7 = k7 * HO2_concentration_constant
 L8 = k8 * OH_concentration_constant
 LO3 = L7+L8
+
 # Numerical solution using semi-implicit Euler scheme
 for i in range(len(time)-1):
     O_concentration[i] = O3_concentration[i] * 5e-6
     NO_concentration[i] = NOx_concentration[i] /((k2 + k3 * O_concentration[i])/(k2 + k3*O_concentration[i] + k1 * O3_concentration[i]))
-    P_O3[i] = k6 * O3_concentration[i] * OH_concentration_constant * NO_concentration[i]
+    P_O3[i] = k6 * HO2_concentration_constant * NO_concentration[i]
     O3_concentration[i+1] = (O3_concentration[i] + P_O3[i] * timestep) / (1 + LO3*timestep)
 
+NO2_concentration_0 = NO_concentration_0 * O3_concentration_0 * k1 / ((k2+k3)*O_concentration_0)
+NO2_concentration = np.zeros(len(time))
+NO2_concentration[0] = NO2_concentration_0
+for i in range(len(time)-1):
+    NO2_concentration[i] = NO_concentration[i] * O3_concentration[i] * k1 / ((k2+k3)*O_concentration[i])
+    NOx_concentration[i] = NO_concentration[i] + NO2_concentration[i]
 
-plt.plot(time/(24*3600), np.array(O3_concentration * 1e10 * rho / (1/Mair *1/1e6 *Navo)), label='O4 (0.1 ppbv)')
+plt.plot(time/(24*3600), np.array(O3_concentration * 1e10 * rho / (1/Mair *1/1e6 *Navo)), label='O3 (0.1 ppbv)')
 plt.plot(time/(24*3600), np.array(CH4_concentration* 1e8 * rho / (1/Mair *1/1e6 *Navo)), label='CH4 (10 ppbv)')
 plt.plot(time/(24*3600), np.array(CO_concentration* 1e9 * rho / (1/Mair *1/1e6 *Navo)), label='CO (ppbv)')
+plt.plot(time/(24*3600), np.array(CO_concentration* 1e12 * rho / (1/Mair *1/1e6 *Navo)), label='NOx (pptv)')
 plt.xlabel('Time (days)')
 plt.ylabel('Concentration')
 plt.title('Temporal Evolution over 30 days')
