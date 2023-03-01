@@ -140,28 +140,37 @@ for i in range(len(time)-1):
     O_concentration[i+1] = O3_concentration[i] * 5e-6
     NO_concentration[i+1] = NOx_concentration[i] *(k2 + k3 * O_concentration[i])/(k2 + k3*O_concentration[i] + k1 * O3_concentration[i])
     P_O3[i+1] = k6 * HO2_concentration_constant * NO_concentration[i]
-    L9[i+1] = k1 * NO_concentration[i] + LO3
-    O3_concentration[i+1] = (O3_concentration[i] + P_O3[i] * timestep) / (1 + (L9[i]) *timestep)
+    # L9[i+1] = k1 * NO_concentration[i] # + LO3
+    O3_concentration[i+1] = (O3_concentration[i] + P_O3[i] * timestep) / (1 + (LO3) *timestep)
     NO2_concentration[i+1] = NO_concentration[i] * O3_concentration[i] * k1 / (k2+k3 *O_concentration[i])
 
 plt.plot(time/(24*3600), np.array(O3_concentration * 1e10 * rho / (1/Mair *1/1e6 *Navo)), label='O3 (0.1 ppbv)')
 plt.plot(time/(24*3600), np.array(CH4_concentration* 1e8 * rho / (1/Mair *1/1e6 *Navo)), label='CH4 (10 ppbv)')
 plt.plot(time/(24*3600), np.array(CO_concentration* 1e9 * rho / (1/Mair *1/1e6 *Navo)), label='CO (ppbv)')
 plt.plot(time/(24*3600), np.array(NOx_concentration* 1e12 * rho / (1/Mair *1/1e6 *Navo)), label='NOx (pptv)')
+plt.plot(time/(24*3600), np.array(NO_concentration* 1e12 * rho / (1/Mair *1/1e6 *Navo)), label='NO (pptv)')
+plt.plot(time/(24*3600), np.array(NO2_concentration* 1e12 * rho / (1/Mair *1/1e6 *Navo)), label='NO (pptv)')
+
 plt.xlabel('Time (days)')
 plt.ylabel('Concentration')
+plt.grid()
 plt.title('Temporal Evolution over 30 days')
 plt.legend()
 plt.show()
 
-production = P_O3[240:]
-loss = L9[240:] * O3_concentration[240:]
+production = P_O3[242:]
+loss = LO3 * O3_concentration[242:]
+time_new = time[242:]
 
-NOx_VMR = NOx_concentration[240:] * Mair * 1e6 / (Navo * rho)
+NOx_VMR = NOx_concentration[242:] * Mair * 1e6 / (Navo * rho)
+
 
 plt.plot(NOx_VMR, production - loss, label='Net production')
 plt.plot(NOx_VMR, production, label = 'Production term')
 plt.plot(NOx_VMR, - loss, label = 'Loss term')
-plt.xscale('log')
+# plt.xscale('log')
+plt.xlabel('VMR NO_x (mol/mol)')
+plt.ylabel('Ozone production & loss terms (mol/cm^3/s)')
+plt.grid()
 plt.legend()
 plt.show()
