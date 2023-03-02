@@ -14,7 +14,7 @@ print(es)
 
 data = pd.read_csv(data_list[file_index], sep=' ', skiprows=70)
 timestep = 10 # seconds
-LTO_limit = 914.4 # m
+LTO_limit = 914.4 # meters
 
 ## Data Analysis
 data = data.query('baro_alt_AC_val < 7') # remove all lines with measuring errors
