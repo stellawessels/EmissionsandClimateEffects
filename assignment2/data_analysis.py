@@ -5,7 +5,7 @@ data_list = ('IAGOS_timeseries_2019050116041591.txt', 'IAGOS_timeseries_20190430
              'IAGOS_timeseries_2019043004153591.txt', 'IAGOS_timeseries_2019042914412591.txt',
              'IAGOS_timeseries_2019021216295591.txt', 'IAGOS_timeseries_2019021122212591.txt',
              'IAGOS_timeseries_2019021102051591.txt', 'IAGOS_timeseries_2019021011295591.txt')
-file_index = 7
+file_index = 0
 
 # Calculation saturation pressure
 T = 250
@@ -24,11 +24,11 @@ data = data.loc[:,('baro_alt_AC','air_press_AC','air_temp_AC','H2O_gas_PC2','gro
 data = data.assign(distance = data['ground_speed_AC'] * timestep) # append column with distance per timestep
 data = data.assign(saturation_pressure = np.exp(a[0] * data['air_temp_AC']**(-1) + a[1] + a[2] * data['air_temp_AC']
                                                 + a[3] * data['air_temp_AC']**2 + a[4] * np.log(data['air_temp_AC'])))
-data = data.assign(vapour_pressure = data['air_press_AC'] * data['H2O_gas_PC2'] / 1e-6)
+data = data.assign(vapour_pressure = data['air_press_AC'] * data['H2O_gas_PC2'] * 1e-6)
 data_nonLTO = data.query('baro_alt_AC > 914.4')
 data_temp = data.query('air_temp_AC < 235')
 data_ISSR = data.query('vapour_pressure > saturation_pressure')
-print(data_ISSR.shape[0])
+print(data_ISSR)
 
 ## Calculations & Results
 full_distance = data['distance'].sum() / 1000 # distance in km
