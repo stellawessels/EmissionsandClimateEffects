@@ -43,4 +43,4 @@ ISSR_percentage = distance_ISSR / distance * 100
 print(temp_percentage, "percentage of distance under temperature constraint")
 print(ISSR_percentage, "percentage of distance under ISSR constraint")
 
-# print(data_ISSR.describe(include = 'all'))
+print(data_ISSR.describe(include = 'all'))
