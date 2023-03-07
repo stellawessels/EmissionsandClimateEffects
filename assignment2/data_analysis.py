@@ -6,7 +6,9 @@ data_list = ('IAGOS_timeseries_2019050116041591.txt', 'IAGOS_timeseries_20190430
              'IAGOS_timeseries_2019043004153591.txt', 'IAGOS_timeseries_2019042914412591.txt',
              'IAGOS_timeseries_2019021216295591.txt', 'IAGOS_timeseries_2019021122212591.txt',
              'IAGOS_timeseries_2019021102051591.txt', 'IAGOS_timeseries_2019021011295591.txt')
-file_index = 0
+file_index = 4
+
+print('These are the values for', data_list[file_index])
 
 # Calculation saturation pressure
 a = [-6.0245282e3, 2.932707e1, 1.0613868e-2, -1.3198825e-5, -4.9382577e-1]
