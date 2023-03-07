@@ -93,7 +93,7 @@ distance_SAC_2 = data_SAC_2['distance'].sum() / 1000
 distance_SAC_2_percentage = distance_SAC_2 / distance * 100
 print('Distance SAC for 2 = ', distance_SAC_2_percentage, '%')
 
-# E Contrail formation
+#E Contrail formation
 merged_df_notfinished_1 = pd.merge(data_SAC_1, data_ISSR)
 merged_df_1 = pd.merge(merged_df_notfinished_1, data_temp)
 
@@ -107,3 +107,6 @@ distance_merged_df_2 = merged_df_2['distance'].sum()/1000
 distance_merged_df_2_percentage = distance_merged_df_2 / distance * 100
 print('E) Persistent contrails for 1 = ', distance_merged_df_1_percentage, '%')
 print('Persistent contrails for 2 = ', distance_merged_df_2_percentage, '%')
+
+#F Limiting factors
+
