@@ -6,7 +6,7 @@ data_list = ('IAGOS_timeseries_2019050116041591.txt', 'IAGOS_timeseries_20190430
              'IAGOS_timeseries_2019043004153591.txt', 'IAGOS_timeseries_2019042914412591.txt',
              'IAGOS_timeseries_2019021216295591.txt', 'IAGOS_timeseries_2019021122212591.txt',
              'IAGOS_timeseries_2019021102051591.txt', 'IAGOS_timeseries_2019021011295591.txt')
-file_index = 3
+file_index = 0
 
 # Calculation saturation pressure
 a = [-6.0245282e3, 2.932707e1, 1.0613868e-2, -1.3198825e-5, -4.9382577e-1]
@@ -42,7 +42,6 @@ a_liq = [-6.0969385e3, 2.12409642e1, -2.711193e-2, 1.673952e-5, 2.433502]
 data = data.assign(e_liq = np.exp(a_liq[0] * data['air_temp_AC']**(-1) + a_liq[1] + a_liq[2] * data['air_temp_AC'] +
                                   a_liq[3] * data['air_temp_AC']**2 + a_liq[4] * np.log(data['air_temp_AC'])))
 
-print(data)
 ## Calculations & Results
 
 #A Flown distance
