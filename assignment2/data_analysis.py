@@ -6,7 +6,7 @@ data_list = ('IAGOS_timeseries_2019050116041591.txt', 'IAGOS_timeseries_20190430
              'IAGOS_timeseries_2019043004153591.txt', 'IAGOS_timeseries_2019042914412591.txt',
              'IAGOS_timeseries_2019021216295591.txt', 'IAGOS_timeseries_2019021122212591.txt',
              'IAGOS_timeseries_2019021102051591.txt', 'IAGOS_timeseries_2019021011295591.txt')
-file_index = 4
+file_index = 5
 
 print('These are the values for', data_list[file_index])
 
@@ -34,6 +34,8 @@ data = data.loc[:,('baro_alt_AC','air_press_AC','air_temp_AC','H2O_gas_PC2','gro
 data = data.assign(distance = data['ground_speed_AC'] * timestep) # append column with distance per timestep
 data = data.assign(saturation_pressure = np.exp(a[0] * data['air_temp_AC']**(-1) + a[1] + a[2] * data['air_temp_AC']
                                                 + a[3] * data['air_temp_AC']**2 + a[4] * np.log(data['air_temp_AC'])))
+# data = data.assign(saturation_pressure_w = np.exp(a_liq[0] * data['air_temp_AC']**(-1) + a_liq[1] + a_liq[2] * data['air_temp_AC']
+#                                                 + a_liq[3] * data['air_temp_AC']**2 + a_liq[4] * np.log(data['air_temp_AC'])))
 data = data.assign(vapour_pressure = data['air_press_AC'] * data['H2O_gas_PC2'] / 10**6 )
 data_nonLTO = data.query('air_press_AC <= 750e2')
 data_temp = data.query('air_temp_AC < 235')
@@ -83,6 +85,7 @@ data_SAC_2 = data.query('LeftSAC_2 > e_liq2')
 """
 data= data.query('air_temp_AC < 235')
 plt.plot(data["air_temp_AC"], data["saturation_pressure"])
+plt.plot(data["air_temp_AC"], data["saturation_pressure_w"])
 plt.plot(data["air_temp_AC"], data["vapour_pressure"])
 plt.show()
 """
@@ -146,7 +149,7 @@ for i in range(0, data.shape[0]):
 # For aircraft 1
 ifconditions_1 = []
 for i in range(0, data.shape[0]):
-    if Bcondition[i] == Ccondition[i] == Dcondition1[i]:
+    if Bcondition[i] == Ccondition[i] == Dcondition1[i] == 1:
         ifconditions_1.append('Conditions fulfilled')
     else:
         ifconditions_1.append('X')
@@ -187,7 +190,7 @@ percentage_D_1 = num_D1s / sum_1 * 100
 # For aircraft 2
 ifconditions_2 = []
 for i in range(0, data.shape[0]):
-    if Bcondition[i] == Ccondition[i] == Dcondition2[i]:
+    if Bcondition[i] == Ccondition[i] == Dcondition2[i] == 1:
         ifconditions_2.append('Conditions fulfilled')
     else:
         ifconditions_2.append('X')
@@ -212,19 +215,23 @@ for i in range(0, data.shape[0]):
             wiewasdemol_2.append('B!')
         if Ccondition[i+1] == 0:
             wiewasdemol_2.append('C!')
-        if Dcondition1[i+1] == 0:
-            wiewasdemol_2.append('D1!')
+        if Dcondition2[i+1] == 0:
+            wiewasdemol_2.append('D2!')
 
 num_B2s = wiewasdemol_2.count('B!')
 num_C2s = wiewasdemol_2.count('C!')
-num_D2s = wiewasdemol_2.count('D1!')
+num_D2s = wiewasdemol_2.count('D2!')
 sum_2 = num_B2s + num_C2s + num_D2s
 
 percentage_B_2 = num_B2s / sum_2 * 100
 percentage_C_2 = num_C2s / sum_2 * 100
 percentage_D_2 = num_D2s / sum_2 * 100
 
+print(sum_1, sum_2)
+
 print('F)a) Aircraft 1 number of steps condition change ', fault_1.count('Change') )
 print('Aircraft 2 number of steps condition change ', fault_2.count('Change') )
 print('F)b) Aircraft 1, changes, B = ', percentage_B_1,'% C = ', percentage_C_1, '% D = ', percentage_D_1, '%')
 print('Aircraft 2, changes, B = ', percentage_B_2,'% C = ', percentage_C_2, '% D = ', percentage_D_2, '%')
+
+# foutje in resultaat hier? sum_1 =/= fault_1.count('Change')
