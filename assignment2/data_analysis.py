@@ -6,7 +6,7 @@ data_list = ('IAGOS_timeseries_2019050116041591.txt', 'IAGOS_timeseries_20190430
              'IAGOS_timeseries_2019043004153591.txt', 'IAGOS_timeseries_2019042914412591.txt',
              'IAGOS_timeseries_2019021216295591.txt', 'IAGOS_timeseries_2019021122212591.txt',
              'IAGOS_timeseries_2019021102051591.txt', 'IAGOS_timeseries_2019021011295591.txt')
-file_index = 5
+file_index = 2
 
 print('These are the values for', data_list[file_index])
 
@@ -81,6 +81,9 @@ data = data.assign(e_liq2 = np.exp(a_liq[0] * data['T_LM_2']**(-1) + a_liq[1] + 
                                   a_liq[3] * data['T_LM_2']**2 + a_liq[4] * np.log(data['T_LM_2'])))
 data = data.assign(LeftSAC_2= data['vapour_pressure'] + data['G_2'] * (data['T_LM_2']-data['air_temp_AC']))
 data_SAC_2 = data.query('LeftSAC_2 > e_liq2')
+
+data = data.assign(set_pressure = data['vapour_pressure'] * 0 + 40000)
+data = data.assign(set_temp = data['vapour_pressure'] * 0 + 244)
 
 """
 data= data.query('air_temp_AC < 235')
@@ -234,4 +237,6 @@ print('Aircraft 2 number of steps condition change ', fault_2.count('Change') )
 print('F)b) Aircraft 1, changes, B = ', percentage_B_1,'% C = ', percentage_C_1, '% D = ', percentage_D_1, '%')
 print('Aircraft 2, changes, B = ', percentage_B_2,'% C = ', percentage_C_2, '% D = ', percentage_D_2, '%')
 
-# foutje in resultaat hier? sum_1 =/= fault_1.count('Change')
+tempo = data.describe()
+
+print(tempo)
